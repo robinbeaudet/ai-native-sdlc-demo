@@ -2,7 +2,9 @@
 title: Require a cost center on claims over €100
 intent: sdlc/intents/intent-002-cost-center-over-100.md
 spec: sdlc/specs/spec-002-cost-center-over-100.md
-status: draft
+status: approved
+approved_by: Robin Beaudet
+approved_at: 2026-11-17T16:11:00Z
 ---
 
 # Plan 002: Require a cost center on claims over €100
