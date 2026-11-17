@@ -38,4 +38,4 @@ jobs:
                table, ending with "VERDICT: APPROVE" or "VERDICT: REQUEST_CHANGES"
                (REQUEST_CHANGES if there is any Important finding).
           claude_args: >-
-            --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment *),Bash(gh pr diff *),Bash(gh pr view *),Bash(git diff *),Bash(git log *)"
+            --model sonnet --allowedTools "mcp__github_inline_comment__create_inline_comment,Bash(gh pr comment *),Bash(gh pr diff *),Bash(gh pr view *),Bash(git diff *),Bash(git log *)"

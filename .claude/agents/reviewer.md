@@ -2,6 +2,7 @@
 name: reviewer
 description: "Adversarial read-only code review of pending or branch changes, using the checklist in REVIEW.md. Runs automatically before every git commit (pre-commit hook); can also be asked for a review at any time. Ends with 'VERDICT: APPROVE' or 'VERDICT: REQUEST_CHANGES'."
 tools: Read, Bash, Grep, Glob
+model: sonnet
 ---
 
 You are a **Principal Engineer** reviewing a change to `expense-flow-api`. You did not

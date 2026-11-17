@@ -11,6 +11,8 @@
       "Bash(git log *)",
       "Bash(git show *)",
       "Bash(git switch *)",
+      "Bash(git pull)",
+      "Bash(rm -f expense_flow.db)",
       "Bash(git add *)",
       "Bash(git commit *)",
       "Bash(git push -u origin feature/*)",
