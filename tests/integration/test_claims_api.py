@@ -106,6 +106,22 @@ async def test_invalid_cost_center_is_rejected(client):
     assert [v["code"] for v in response.json()["violations"]] == ["INVALID_COST_CENTER"]
 
 
+@pytest.mark.parametrize("blank", ["", "   "])
+async def test_blank_cost_center_over_100_is_rejected_as_missing(client, blank):
+    response = await client.post(
+        "/claims", json={**CLAIM, "amount": "100.01", "cost_center": blank}
+    )
+    assert response.status_code == 422
+    assert [v["code"] for v in response.json()["violations"]] == ["COST_CENTER_REQUIRED"]
+
+
+@pytest.mark.parametrize("blank", ["", "   "])
+async def test_blank_cost_center_at_or_below_100_is_stored_as_null(client, blank):
+    response = await client.post("/claims", json={**CLAIM, "amount": "50.00", "cost_center": blank})
+    assert response.status_code == 201
+    assert response.json()["cost_center"] is None
+
+
 async def test_existing_claim_without_cost_center_can_be_approved(client, session):
     """A claim created before spec 002 has no cost center and can still be decided."""
     existing = ExpenseClaim(
