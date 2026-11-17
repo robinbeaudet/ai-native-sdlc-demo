@@ -6,14 +6,14 @@ from fastapi.responses import JSONResponse
 
 from expense_flow import __version__
 from expense_flow.config import get_settings
-from expense_flow.database import engine, init_db
+from expense_flow.database import engine
 from expense_flow.exceptions import ExpenseFlowError, PolicyViolationError
 from expense_flow.router import router as claims_router
 
 
 @asynccontextmanager
 async def lifespan(_app: FastAPI) -> AsyncGenerator[None]:
-    await init_db()
+    # No schema creation here: run `uv run alembic upgrade head` before starting the app.
     yield
     await engine.dispose()
 

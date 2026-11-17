@@ -1,0 +1,57 @@
+import asyncio
+from logging.config import fileConfig
+
+from alembic import context
+from sqlalchemy import pool
+from sqlalchemy.engine import Connection
+from sqlalchemy.ext.asyncio import create_async_engine
+
+from expense_flow.config import get_settings
+from expense_flow.models import Base
+
+config = context.config
+
+if config.config_file_name is not None:
+    fileConfig(config.config_file_name, disable_existing_loggers=False)
+
+target_metadata = Base.metadata
+
+# The database URL comes from the app settings (DATABASE_URL), unless a caller such as
+# the migration tests sets `sqlalchemy.url` explicitly.
+database_url = config.get_main_option("sqlalchemy.url") or get_settings().database_url
+
+# render_as_batch: SQLite cannot ALTER most column properties in place, so Alembic
+# recreates the table ("batch mode"). compare_type: detect column type changes.
+MIGRATION_OPTIONS = {"render_as_batch": True, "compare_type": True}
+
+
+def run_migrations_offline() -> None:
+    """Emit SQL to stdout instead of running it (`alembic upgrade head --sql`)."""
+    context.configure(
+        url=database_url,
+        target_metadata=target_metadata,
+        literal_binds=True,
+        dialect_opts={"paramstyle": "named"},
+        **MIGRATION_OPTIONS,
+    )
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+def do_run_migrations(connection: Connection) -> None:
+    context.configure(connection=connection, target_metadata=target_metadata, **MIGRATION_OPTIONS)
+    with context.begin_transaction():
+        context.run_migrations()
+
+
+async def run_migrations_online() -> None:
+    engine = create_async_engine(database_url, poolclass=pool.NullPool)
+    async with engine.connect() as connection:
+        await connection.run_sync(do_run_migrations)
+    await engine.dispose()
+
+
+if context.is_offline_mode():
+    run_migrations_offline()
+else:
+    asyncio.run(run_migrations_online())
