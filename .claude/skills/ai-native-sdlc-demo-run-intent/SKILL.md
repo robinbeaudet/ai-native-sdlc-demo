@@ -25,12 +25,16 @@ user edit the file), and ask again. Never continue without an explicit approval.
 **Autonomous:** don't ask. Record `approved_by: claude (autonomous)` at GA-2 and GA-3, and
 skip GA-4. Stop and ask the human only when you are blocked (see "When to stop").
 
-## 1. Branch
+## 1. Branch and a fresh local database
 
 ```bash
 git switch main && git pull && git switch -c feature/<slug>   # or switch to it if it exists
+rm -f expense_flow.db && uv run alembic upgrade head           # clean database, same schema as main
 git add sdlc/intents/intent-<slug>.md && git commit -m "docs(intent): <slug>"
 ```
+
+The local database is a disposable SQLite file. Rebuilding it guarantees the new migration
+starts from `main`'s schema, not from leftovers of an earlier feature.
 
 ## 2. Spec: `sdlc/specs/spec-<slug>.md` (GA-2)
 
