@@ -1,0 +1,52 @@
+name: Claude (@claude)
+
+# Mention @claude in a pull request comment, a review comment or an issue, for example:
+#   "@claude fix the Important findings from the review"
+#   "@claude the eval test fails on CI, please fix it"
+# Claude works on the PR branch, follows CLAUDE.md (gates, migrations, README sync) and
+# pushes its fix, which re-runs CI and the Claude review. Only users with write access
+# can trigger it. Runs on your Claude subscription (CLAUDE_CODE_OAUTH_TOKEN secret).
+
+on:
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+  issues:
+    types: [opened, assigned]
+
+jobs:
+  claude:
+    if: |
+      (github.event_name == 'issue_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review_comment' && contains(github.event.comment.body, '@claude')) ||
+      (github.event_name == 'pull_request_review' && contains(github.event.review.body, '@claude')) ||
+      (github.event_name == 'issues' && (contains(github.event.issue.body, '@claude') || contains(github.event.issue.title, '@claude')))
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      pull-requests: write
+      issues: write
+      id-token: write
+      actions: read
+    steps:
+      - uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install dependencies so Claude can run the gates
+        run: uv sync --locked
+
+      - uses: anthropics/claude-code-action@v1
+        with:
+          claude_code_oauth_token: ${{ secrets.CLAUDE_CODE_OAUTH_TOKEN }}
+          additional_permissions: |
+            actions: read
+          claude_args: >-
+            --allowedTools "Bash(uv run ruff *),Bash(uv run pytest *),Bash(uv run alembic *),Bash(uv sync *),Bash(uv add *)"

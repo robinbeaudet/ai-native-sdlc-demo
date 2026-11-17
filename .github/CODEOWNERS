@@ -1,0 +1,9 @@
+# Changes to the SDLC machinery (rules, review checklist, agents, skills, hooks, CI) need
+# a code owner's approval, whoever (or whatever) wrote them. Enforce it with branch
+# protection: "Require review from Code Owners" on dev and main.
+/.claude/        @robinbeaudet
+/scripts/        @robinbeaudet
+/.github/        @robinbeaudet
+/CLAUDE.md       @robinbeaudet
+/REVIEW.md       @robinbeaudet
+/alembic/env.py  @robinbeaudet

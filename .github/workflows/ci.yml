@@ -1,0 +1,45 @@
+name: CI
+
+# Deterministic gates on every PR: the same commands as CLAUDE.md section 5.
+# The AI review of each PR is a separate workflow: claude-review.yml (uses REVIEW.md).
+
+on:
+  pull_request:
+    branches: [dev, main]
+
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
+
+jobs:
+  deterministic-verification:
+    name: Deterministic verification (ruff, alembic, pytest)
+    runs-on: ubuntu-latest
+    env:
+      DATABASE_URL: sqlite+aiosqlite:///./ci.db
+    steps:
+      - uses: actions/checkout@v6
+
+      - uses: astral-sh/setup-uv@v6
+        with:
+          enable-cache: true
+
+      - name: Install dependencies (Python version from .python-version)
+        run: uv sync --locked
+
+      - name: Lint
+        run: uv run ruff check .
+
+      - name: Format
+        run: uv run ruff format --check .
+
+      - name: Migrations apply cleanly and match the models
+        run: |
+          uv run alembic upgrade head
+          uv run alembic check
+
+      - name: Tests (unit, integration, evals, hooks)
+        run: uv run pytest
