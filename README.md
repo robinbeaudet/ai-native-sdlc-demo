@@ -80,7 +80,7 @@ One table, `expense_claims` ([`models.py`](src/expense_flow/models.py)):
 | [`claude.yml`](.github/workflows/claude.yml) | Comment `@claude <request>` on a PR and Claude pushes a fix |
 | [`CODEOWNERS`](.github/CODEOWNERS) | Changes to these SDLC files need a human's approval |
 
-Intents, specs and plans are stored in `intents/`, `specs/` and `plans/`.
+Intents, specs and plans are stored in `sdlc/intents/`, `sdlc/specs/` and `sdlc/plans/`.
 Each change lives on a `feature/<slug>` branch and reaches `main` through a pull request.
 
 ## Running the demos
@@ -90,7 +90,7 @@ Open this repository in Claude Code (run `claude` from the repo root), on an up-
 **Track 1: gated (a schema change, so a human approves each step).**
 Say: *"Finance wants every claim over €100 to carry a cost center. Make `cost_center`
 mandatory for claims over €100."* Choose **Gated**, then run
-`/ai-native-sdlc-demo-run-intent intents/intent-002-....md`. Claude pauses for your
+`/ai-native-sdlc-demo-run-intent sdlc/intents/intent-002-....md`. Claude pauses for your
 approval after the spec (check the migration: what happens to existing rows?), after the
 plan, and before opening the PR.
 

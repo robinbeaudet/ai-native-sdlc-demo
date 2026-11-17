@@ -59,8 +59,8 @@ behaviour, update the test and say so.
 
 ## Workflow
 
-- A change goes intent → spec → plan → code → pull request, with the files in `intents/`,
-  `specs/` and `plans/`.
+- A change goes intent → spec → plan → code → pull request. Intents, specs and plans are
+  files in `sdlc/intents/`, `sdlc/specs/` and `sdlc/plans/`.
   - **Gated** intents: a human approves the spec, the plan and the pull request.
   - **Autonomous** intents (`[LLM]` tickets): Claude goes straight to a draft pull request.
 - Work on a `feature/<slug>` branch and merge into `main` through a pull request.

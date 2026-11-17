@@ -44,15 +44,15 @@ def test_other_commands_pass_through(command):
 
 
 def test_markdown_artifacts_skip_the_code_review():
-    assert only_artifacts("?? specs/spec-002-x.md\n M intents/intent-002-x.md\n")
+    assert only_artifacts("?? sdlc/specs/spec-002-x.md\n M sdlc/intents/intent-002-x.md\n")
 
 
 @pytest.mark.parametrize(
     "porcelain",
     [
-        "?? specs/spec-002-x.md\n M src/expense_flow/models.py\n",  # code too
-        "?? specs/conftest.py\n",  # code hidden in an artifact folder
-        "R  src/expense_flow/policy.py -> intents/x.md\n",  # code renamed away
+        "?? sdlc/specs/spec-002-x.md\n M src/expense_flow/models.py\n",  # code too
+        "?? sdlc/specs/conftest.py\n",  # code hidden in an artifact folder
+        "R  src/expense_flow/policy.py -> sdlc/intents/x.md\n",  # code renamed away
     ],
 )
 def test_anything_else_is_reviewed(porcelain):

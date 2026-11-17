@@ -24,7 +24,7 @@ REVIEWER_TOOLS = (
     "Bash(uv run ruff *) Bash(uv run pytest *)"
 )
 GIT_OPTIONS_WITH_VALUE = {"-C", "-c", "--git-dir", "--work-tree"}
-ARTIFACT_DIRS = ("intents/", "specs/", "plans/")
+ARTIFACT_DIRS = ("sdlc/intents/", "sdlc/specs/", "sdlc/plans/")
 BLOCK = 2
 
 

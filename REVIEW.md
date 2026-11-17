@@ -5,7 +5,7 @@ Review like a skeptical senior engineer: this is a financial system, and the aut
 
 ## Always check
 
-1. **The spec is respected.** Every requirement in the matching `specs/spec-*.md` is
+1. **The spec is respected.** Every requirement in the matching `sdlc/specs/spec-*.md` is
    implemented, with the exact amounts and the right comparison (`>` or `>=`). Nothing extra.
 2. **Money is exact.** No `float` anywhere near amounts. `Decimal` values are written as strings.
 3. **Migrations are safe.** A change to `models.py` comes with an Alembic migration. A new

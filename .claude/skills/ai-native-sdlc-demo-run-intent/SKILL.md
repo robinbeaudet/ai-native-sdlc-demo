@@ -1,6 +1,6 @@
 ---
 name: ai-native-sdlc-demo-run-intent
-description: "Deliver an intent of expense-flow-api end to end: spec, plan, implementation, verification, review and a draft PR to main. Gated intents pause for human approval after each step; autonomous ([LLM]) intents run straight through. Use when asked to run, implement or deliver an intents/intent-*.md file."
+description: "Deliver an intent of expense-flow-api end to end: spec, plan, implementation, verification, review and a draft PR to main. Gated intents pause for human approval after each step; autonomous ([LLM]) intents run straight through. Use when asked to run, implement or deliver an sdlc/intents/intent-*.md file."
 ---
 
 # Run an intent (AI-native SDLC, stages 2 to 6)
@@ -29,12 +29,12 @@ skip GA-4. Stop and ask the human only when you are blocked (see "When to stop")
 
 ```bash
 git switch main && git pull && git switch -c feature/<slug>   # or switch to it if it exists
-git add intents/intent-<slug>.md && git commit -m "docs(intent): <slug>"
+git add sdlc/intents/intent-<slug>.md && git commit -m "docs(intent): <slug>"
 ```
 
-## 2. Spec: `specs/spec-<slug>.md` (GA-2)
+## 2. Spec: `sdlc/specs/spec-<slug>.md` (GA-2)
 
-Frontmatter: `title`, `intent: intents/intent-<slug>.md`, `status: draft`. Sections:
+Frontmatter: `title`, `intent: sdlc/intents/intent-<slug>.md`, `status: draft`. Sections:
 
 1. Summary
 2. Data model changes: exact SQLAlchemy columns (name, type, nullable, default)
@@ -52,7 +52,7 @@ strategy and the exact thresholds. Once approved, set `status: approved`, `appro
 (`git config user.name`, or `claude (autonomous)`) and `approved_at` (UTC), and commit
 (`docs(spec): approve <slug>`).
 
-## 3. Plan: `plans/plan-<slug>.md` (GA-3)
+## 3. Plan: `sdlc/plans/plan-<slug>.md` (GA-3)
 
 Same frontmatter. An ordered checklist of file changes (path, change, reason), the exact
 Alembic commands, the tests to add and the verification commands. Commit, run **GA-3**
