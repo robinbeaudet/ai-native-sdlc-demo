@@ -134,7 +134,7 @@ flowchart LR
     P -->|GA-3| C[Code + migration + tests + README]
     C --> V{ruff + pytest<br/>until green}
     V --> R{git commit:<br/>reviewer agent}
-    R -->|GA-4| PR[Draft PR -> dev]
+    R -->|GA-4| PR[Draft PR -> main]
     PR --> G{GitHub: CI gates<br/>+ Claude review}
 ```
 
@@ -154,7 +154,7 @@ flowchart LR
 | `@claude` | [`.github/workflows/claude.yml`](.github/workflows/claude.yml) | Mention `@claude` on a PR or issue: Claude fixes the code on the PR branch and pushes |
 | Code owners | [`.github/CODEOWNERS`](.github/CODEOWNERS) | Changes to the SDLC machinery itself need a human code owner |
 
-**Branches:** `main` (production) <- `dev` (integration) <- `feature/<NNN>-<slug>` (one per intent).
+**Branches:** one `feature/<NNN>-<slug>` branch per intent, merged into `main` through a pull request.
 **Status fields:** intents go `captured` -> `implemented` -> `merged`; specs and plans go `draft` -> `approved`.
 
 ### Two reviews: before every commit, and on every PR
@@ -180,8 +180,8 @@ your Claude account.
 
 1. `uv sync && uv run alembic upgrade head`
 2. [Claude Code](https://code.claude.com/docs) installed and logged in (`claude --version`).
-3. `brew install gh && gh auth login`, with `main` and `dev` pushed to GitHub (for the PR step).
-4. Start from an up-to-date `dev`: `git switch dev && git pull`.
+3. `brew install gh && gh auth login`, with `main` pushed to GitHub (for the PR step).
+4. Start from an up-to-date `main`: `git switch main && git pull`.
 5. Open this repository in **Claude Code**: the CLI (`claude` from the repo root) or the
    **Code** tab of Claude Desktop with this folder selected. Both skills are project-scoped:
    they live in this repository and load only here.
@@ -205,7 +205,7 @@ your Claude account.
    tests and updates this README, then runs ruff + pytest until green. On `git commit`,
    the **reviewer agent** reviews the change and can block the commit.
 6. **GA-4, the PR.** Claude shows the diff and the review verdict. Approve, and it opens a
-   **draft PR to `dev`**. Claude reviews it in GitHub a minute later.
+   **draft PR to `main`**. Claude reviews it in GitHub a minute later.
 
 ### Track 2: the Autonomous feature flow
 
@@ -218,7 +218,7 @@ your Claude account.
 2. The `[LLM]` tag makes the capture skill stamp `workflow_mode: autonomous` and
    `ticket_tag: LLM`, then hand over to the run-intent skill.
 3. Claude runs hands-off: spec and plan (auto-approved), implementation, tests until
-   green, a commit reviewed by the reviewer agent, then a **draft PR to `dev`**.
+   green, a commit reviewed by the reviewer agent, then a **draft PR to `main`**.
 4. Claude stops and asks you only if it is blocked: gates still red after 3 attempts,
    the reviewer blocks twice, an ambiguous requirement, or a change to the SDLC machinery.
 5. On the PR, comment `@claude <request>` for follow-up changes.
@@ -235,7 +235,7 @@ toward your plan's limits. One-time setup:
 2. **Create a subscription token**: run `claude setup-token` in a terminal and copy the token.
 3. **Add it as a secret** named `CLAUDE_CODE_OAUTH_TOKEN` (repository Settings -> Secrets and
    variables -> Actions), or run `gh secret set CLAUDE_CODE_OAUTH_TOKEN` and paste it.
-4. **Protect `dev` and `main`** (Settings -> Branches): require a pull request, require the
+4. **Protect `main`** (Settings -> Branches): require a pull request, require the
    `Deterministic verification` check, and turn on **Require review from Code Owners**,
    so changes to the SDLC machinery need a human. On a free GitHub account, branch
    protection is only enforced on public repositories.

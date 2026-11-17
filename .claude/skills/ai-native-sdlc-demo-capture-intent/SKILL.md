@@ -44,7 +44,7 @@ exact structure:
 title: <short imperative title>
 workflow_mode: gated | autonomous
 ticket_tag: STANDARD | LLM
-target_branch: dev
+target_branch: main
 status: captured
 created: <YYYY-MM-DD>
 ---
