@@ -2,7 +2,7 @@
 title: Core expense submission and approval policy
 workflow_mode: gated
 ticket_tag: STANDARD
-target_branch: dev
+target_branch: main
 status: merged
 created: 2026-11-17
 ---

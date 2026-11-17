@@ -1,6 +1,6 @@
 ---
 name: ai-native-sdlc-demo-run-intent
-description: "Deliver an intent of expense-flow-api end to end: spec, plan, implementation, verification, review and a draft PR to dev. Gated intents pause for human approval after each step; autonomous ([LLM]) intents run straight through. Use when asked to run, implement or deliver an intents/intent-*.md file."
+description: "Deliver an intent of expense-flow-api end to end: spec, plan, implementation, verification, review and a draft PR to main. Gated intents pause for human approval after each step; autonomous ([LLM]) intents run straight through. Use when asked to run, implement or deliver an intents/intent-*.md file."
 ---
 
 # Run an intent (AI-native SDLC, stages 2 to 6)
@@ -28,7 +28,7 @@ skip GA-4. Stop and ask the human only when you are blocked (see "When to stop")
 ## 1. Branch
 
 ```bash
-git switch dev && git switch -c feature/<slug>   # or `git switch feature/<slug>` if it exists
+git switch main && git pull && git switch -c feature/<slug>   # or switch to it if it exists
 git add intents/intent-<slug>.md && git commit -m "docs(intent): <slug>"
 ```
 
@@ -81,12 +81,12 @@ If it blocks the commit, fix every Important finding, re-run the gates and commi
 
 ## 6. Pull request (GA-4)
 
-**GA-4 (gated only):** show the user `git diff dev --stat`, the reviewer's verdict and what
+**GA-4 (gated only):** show the user `git diff main --stat`, the reviewer's verdict and what
 changed for the business. Push only after approval.
 
 ```bash
 git push -u origin feature/<slug>
-gh pr create --draft --base dev --title "<title>" --body "<summary + links to intent, spec, plan>"
+gh pr create --draft --base main --title "<title>" --body "<summary + links to intent, spec, plan>"
 ```
 
 Finish with the PR link. On GitHub, Claude reviews the PR automatically, and
@@ -98,4 +98,4 @@ Finish with the PR link. On GitHub, Claude reviews the PR automatically, and
 - The reviewer blocks the commit twice in a row.
 - The intent or spec is ambiguous in a way that changes behaviour (amounts, `>` vs `>=`).
 - The change would touch `.claude/`, `scripts/`, `.github/`, `CLAUDE.md` or `REVIEW.md`.
-- `dev` does not exist, or `git push` / `gh` fails.
+- `git push` or `gh` fails.

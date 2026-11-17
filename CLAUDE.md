@@ -38,7 +38,7 @@ These rules apply to every change, made by a human or by Claude.
 - **Gated** intents: a human approves the spec, the plan and the PR.
 - **Autonomous** intents (`[LLM]` tickets): Claude goes straight through to a draft PR.
 
-Branches: `feature/<slug>` -> `dev` -> `main`. Never force-push.
+Branches: `feature/<slug>` -> pull request -> `main`. Never push to `main` directly, never force-push.
 
 ## Reviews
 
