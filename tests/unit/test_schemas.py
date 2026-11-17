@@ -41,3 +41,18 @@ def test_money_is_stored_as_integer_cents():
     assert money.process_bind_param(Decimal("1234.56"), None) == 123456
     assert money.process_result_value(123456, None) == Decimal("1234.56")
     assert str(money.process_result_value(7550, None)) == "75.50"
+
+
+@pytest.mark.parametrize("blank", ["", "   "])
+def test_blank_cost_center_becomes_none(blank):
+    assert ExpenseClaimCreate.model_validate({**VALID, "cost_center": blank}).cost_center is None
+
+
+@pytest.mark.parametrize("value", ["CC-1234", " CC-1234", "cc-1234"])
+def test_cost_center_is_kept_verbatim(value):
+    assert ExpenseClaimCreate.model_validate({**VALID, "cost_center": value}).cost_center == value
+
+
+def test_oversized_cost_center_is_rejected():
+    with pytest.raises(ValidationError):
+        ExpenseClaimCreate.model_validate({**VALID, "cost_center": "C" * 65})

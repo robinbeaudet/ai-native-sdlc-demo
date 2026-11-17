@@ -1,11 +1,14 @@
 """
-| Code                    | Rule                                                    |
-|-------------------------|---------------------------------------------------------|
-| RECEIPT_REQUIRED        | MEALS claims over EUR 50.00 need a receipt_url          |
-| AMOUNT_EXCEEDS_MAXIMUM  | A single claim cannot exceed EUR 2,500.00               |
-| VP_APPROVAL_REQUIRED    | Claims over EUR 500.00 can only be approved by a VP     |
+| Code                    | Rule                                                        |
+|-------------------------|-------------------------------------------------------------|
+| RECEIPT_REQUIRED        | MEALS claims over EUR 50.00 need a receipt_url              |
+| AMOUNT_EXCEEDS_MAXIMUM  | A single claim cannot exceed EUR 2,500.00                   |
+| COST_CENTER_REQUIRED    | Claims over EUR 100.00 need a cost_center                   |
+| INVALID_COST_CENTER     | A cost_center, if given, must be CC- followed by 4 digits   |
+| VP_APPROVAL_REQUIRED    | Claims over EUR 500.00 can only be approved by a VP         |
 """
 
+import re
 from dataclasses import dataclass
 from decimal import Decimal
 
@@ -15,6 +18,9 @@ from expense_flow.schemas import ExpenseClaimCreate
 MEAL_RECEIPT_THRESHOLD = Decimal("50.00")
 VP_APPROVAL_THRESHOLD = Decimal("500.00")
 MAX_CLAIM_AMOUNT = Decimal("2500.00")
+COST_CENTER_THRESHOLD = Decimal("100.00")
+# re.ASCII: \d must only match 0-9, not other Unicode digits.
+COST_CENTER_PATTERN = re.compile(r"CC-\d{4}", re.ASCII)
 
 
 @dataclass(frozen=True)
@@ -42,6 +48,21 @@ def evaluate_submission(claim: ExpenseClaimCreate) -> list[PolicyViolation]:
             PolicyViolation(
                 "AMOUNT_EXCEEDS_MAXIMUM",
                 f"A single claim cannot exceed EUR {MAX_CLAIM_AMOUNT}",
+            )
+        )
+    if claim.cost_center is not None:
+        if not COST_CENTER_PATTERN.fullmatch(claim.cost_center):
+            violations.append(
+                PolicyViolation(
+                    "INVALID_COST_CENTER",
+                    "cost_center must be CC- followed by 4 digits, e.g. CC-1234",
+                )
+            )
+    elif claim.amount > COST_CENTER_THRESHOLD:
+        violations.append(
+            PolicyViolation(
+                "COST_CENTER_REQUIRED",
+                f"Claims over EUR {COST_CENTER_THRESHOLD} require a cost_center",
             )
         )
     return violations

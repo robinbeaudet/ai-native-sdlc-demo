@@ -1,4 +1,8 @@
+from decimal import Decimal
+
 import pytest
+
+from expense_flow.models import ExpenseCategory, ExpenseClaim
 
 pytestmark = pytest.mark.integration
 
@@ -63,10 +67,60 @@ async def test_claim_over_maximum_is_rejected(client):
             "category": "EQUIPMENT",
             "amount": "2500.01",
             "description": "Workstation",
+            "cost_center": "CC-1234",
         },
     )
     assert response.status_code == 422
     assert [v["code"] for v in response.json()["violations"]] == ["AMOUNT_EXCEEDS_MAXIMUM"]
+
+
+CLAIM = {"employee_id": "emp-001", "category": "TRAVEL", "description": "Taxi"}
+
+
+async def test_claim_over_100_without_cost_center_is_rejected(client):
+    response = await client.post("/claims", json={**CLAIM, "amount": "100.01"})
+    assert response.status_code == 422
+    assert [v["code"] for v in response.json()["violations"]] == ["COST_CENTER_REQUIRED"]
+
+
+async def test_claim_of_exactly_100_needs_no_cost_center(client):
+    response = await client.post("/claims", json={**CLAIM, "amount": "100.00"})
+    assert response.status_code == 201
+    assert response.json()["cost_center"] is None
+
+
+async def test_cost_center_round_trips(client):
+    response = await client.post(
+        "/claims", json={**CLAIM, "amount": "100.01", "cost_center": "CC-1234"}
+    )
+    assert response.status_code == 201
+    fetched = await client.get(f"/claims/{response.json()['id']}")
+    assert fetched.json()["cost_center"] == "CC-1234"
+
+
+async def test_invalid_cost_center_is_rejected(client):
+    response = await client.post(
+        "/claims", json={**CLAIM, "amount": "100.01", "cost_center": "cc-1234"}
+    )
+    assert response.status_code == 422
+    assert [v["code"] for v in response.json()["violations"]] == ["INVALID_COST_CENTER"]
+
+
+async def test_existing_claim_without_cost_center_can_be_approved(client, session):
+    """A claim created before spec 002 has no cost center and can still be decided."""
+    existing = ExpenseClaim(
+        employee_id="emp-001",
+        category=ExpenseCategory.TRAVEL,
+        amount=Decimal("300.00"),
+        description="Created before cost centers existed",
+    )
+    session.add(existing)
+    await session.commit()
+
+    response = await client.post(f"/claims/{existing.id}/approve", json=VP)
+    assert response.status_code == 200
+    assert response.json()["status"] == "APPROVED"
+    assert response.json()["cost_center"] is None
 
 
 async def test_schema_violation_returns_422(client):

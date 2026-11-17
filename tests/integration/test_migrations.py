@@ -10,7 +10,7 @@ from pathlib import Path
 import pytest
 from alembic import command
 from alembic.config import Config
-from sqlalchemy import create_engine, inspect
+from sqlalchemy import create_engine, inspect, text
 
 pytestmark = pytest.mark.integration
 
@@ -51,3 +51,32 @@ def test_upgrade_downgrade_upgrade(alembic_config, db_path):
 
     command.upgrade(alembic_config, "head")
     assert table_names(db_path) == {"expense_claims"}
+
+
+def test_cost_center_migration_keeps_existing_claims(alembic_config, db_path):
+    """Spec 002: claims that exist before the upgrade survive it with cost_center NULL,
+    and survive the downgrade, which removes only the column."""
+    command.upgrade(alembic_config, "e44d115a61f1")  # baseline, before cost_center
+    engine = create_engine(f"sqlite:///{db_path}")
+    try:
+        with engine.begin() as conn:
+            conn.execute(
+                text(
+                    "INSERT INTO expense_claims (employee_id, category, amount, currency,"
+                    " description, status, submitted_at) VALUES ('emp-001', 'TRAVEL', 30000,"
+                    " 'EUR', 'Existing claim', 'SUBMITTED', '2026-01-01 00:00:00')"
+                )
+            )
+
+        command.upgrade(alembic_config, "head")
+        with engine.connect() as conn:
+            rows = conn.execute(text("SELECT amount, cost_center FROM expense_claims")).all()
+        assert rows == [(30000, None)]
+
+        command.downgrade(alembic_config, "-1")
+        columns = {c["name"] for c in inspect(engine).get_columns("expense_claims")}
+        assert "cost_center" not in columns
+        with engine.connect() as conn:
+            assert conn.execute(text("SELECT COUNT(*) FROM expense_claims")).scalar() == 1
+    finally:
+        engine.dispose()
