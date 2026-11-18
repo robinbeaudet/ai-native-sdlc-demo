@@ -47,6 +47,7 @@ class ExpenseClaim(Base):
     currency: Mapped[str] = mapped_column(String(3), default="EUR")
     description: Mapped[str] = mapped_column(String(500))
     receipt_url: Mapped[str | None] = mapped_column(String(2048))
+    cost_center: Mapped[str | None] = mapped_column(String(7))
     status: Mapped[ClaimStatus] = mapped_column(default=ClaimStatus.SUBMITTED, index=True)
     submitted_at: Mapped[datetime] = mapped_column(default=utc_now)
     decided_at: Mapped[datetime | None]

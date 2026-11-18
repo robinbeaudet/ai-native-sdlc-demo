@@ -41,12 +41,15 @@ Amounts are sent and returned as strings, e.g. `"49.99"`. Errors: `404` unknown 
 
 ## Expense policy
 
-From [`policy.py`](src/expense_flow/policy.py). Thresholds are exclusive: exactly €50.00 needs no receipt.
+From [`policy.py`](src/expense_flow/policy.py). Thresholds are exclusive: exactly €50.00 needs no receipt,
+and exactly €100.00 needs no cost center.
 
 | Code | Rule |
 |---|---|
 | `RECEIPT_REQUIRED` | On submission: `MEALS` claims over €50.00 need a `receipt_url` |
 | `AMOUNT_EXCEEDS_MAXIMUM` | On submission: a claim cannot exceed €2,500.00 |
+| `COST_CENTER_REQUIRED` | On submission: claims over €100.00 need a `cost_center` |
+| `COST_CENTER_INVALID` | On submission: a `cost_center`, when given, must be `CC-` followed by 4 digits (e.g. `CC-1234`), at any amount |
 | `VP_APPROVAL_REQUIRED` | On approval: claims over €500.00 can only be approved by a `VP` |
 
 ## Data model
@@ -62,6 +65,7 @@ One table, `expense_claims` ([`models.py`](src/expense_flow/models.py)):
 | `currency` | text | Always `EUR` |
 | `description` | text | Required |
 | `receipt_url` | text | Optional |
+| `cost_center` | text | Optional; format `CC-1234`; required on submission over €100.00. `null` on claims submitted before this rule |
 | `status` | enum | `SUBMITTED` → `APPROVED` or `REJECTED` |
 | `submitted_at` | datetime | Required, UTC |
 | `decided_at`, `approver_id`, `approver_role`, `rejection_reason` | | Optional; set when the claim is decided. Role: `MANAGER` or `VP` |
