@@ -48,6 +48,7 @@ def submit_claim(client):
             "category": "TRAVEL",
             "amount": "120.00",
             "description": "Train ticket Paris-Lyon",
+            "cost_center": "CC-1234",  # required over EUR 100.00 (spec 002)
             **overrides,
         }
         response = await client.post("/claims", json=payload)

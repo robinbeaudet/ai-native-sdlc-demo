@@ -20,6 +20,12 @@ def test_amount_is_parsed_as_decimal():
     assert ExpenseClaimCreate.model_validate(VALID).amount == Decimal("42.50")
 
 
+def test_cost_center_is_optional():
+    assert ExpenseClaimCreate.model_validate(VALID).cost_center is None
+    with_cc = ExpenseClaimCreate.model_validate({**VALID, "cost_center": "CC-1234"})
+    assert with_cc.cost_center == "CC-1234"
+
+
 @pytest.mark.parametrize(
     ("field", "value"),
     [

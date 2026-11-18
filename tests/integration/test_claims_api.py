@@ -63,10 +63,49 @@ async def test_claim_over_maximum_is_rejected(client):
             "category": "EQUIPMENT",
             "amount": "2500.01",
             "description": "Workstation",
+            "cost_center": "CC-1234",  # keeps this test about the maximum rule (spec 002)
         },
     )
     assert response.status_code == 422
     assert [v["code"] for v in response.json()["violations"]] == ["AMOUNT_EXCEEDS_MAXIMUM"]
+
+
+def travel_claim(amount, **extra):
+    return {
+        "employee_id": "emp-001",
+        "category": "TRAVEL",
+        "amount": amount,
+        "description": "Hotel shuttle",
+        **extra,
+    }
+
+
+@pytest.mark.parametrize("payload_extra", [{}, {"cost_center": None}])
+async def test_claim_over_100_without_cost_center_is_rejected(client, payload_extra):
+    response = await client.post("/claims", json=travel_claim("100.01", **payload_extra))
+    assert response.status_code == 422
+    assert [v["code"] for v in response.json()["violations"]] == ["COST_CENTER_REQUIRED"]
+
+
+async def test_claim_of_exactly_100_needs_no_cost_center(client):
+    response = await client.post("/claims", json=travel_claim("100.00"))
+    assert response.status_code == 201
+    assert response.json()["cost_center"] is None
+
+
+async def test_malformed_cost_center_is_rejected(client):
+    response = await client.post("/claims", json=travel_claim("100.01", cost_center="cc-1234"))
+    assert response.status_code == 422
+    assert [v["code"] for v in response.json()["violations"]] == ["COST_CENTER_INVALID"]
+
+
+async def test_cost_center_is_stored_and_returned(client):
+    response = await client.post("/claims", json=travel_claim("100.01", cost_center="CC-1234"))
+    assert response.status_code == 201
+    created = response.json()
+    assert created["cost_center"] == "CC-1234"
+    fetched = (await client.get(f"/claims/{created['id']}")).json()
+    assert fetched["cost_center"] == "CC-1234"
 
 
 async def test_schema_violation_returns_422(client):

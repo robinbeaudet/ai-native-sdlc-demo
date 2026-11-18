@@ -14,6 +14,8 @@ class ExpenseClaimCreate(BaseModel):
     amount: Decimal = Field(gt=0, max_digits=12, decimal_places=2)
     description: str = Field(min_length=1, max_length=500)
     receipt_url: str | None = Field(default=None, max_length=2048)
+    # Format and requirement are checked by the policy, so errors carry a violation code.
+    cost_center: str | None = None
 
 
 class ExpenseClaimRead(BaseModel):
@@ -26,6 +28,7 @@ class ExpenseClaimRead(BaseModel):
     currency: str
     description: str
     receipt_url: str | None
+    cost_center: str | None
     status: ClaimStatus
     submitted_at: datetime
     decided_at: datetime | None
